@@ -1,5 +1,5 @@
-#ifndef DRAGABLETABWINDOW_H
-#define DRAGABLETABWINDOW_H
+#ifndef DRAGABLETABGROUP_H
+#define DRAGABLETABGROUP_H
 
 #include <QObject>
 #include <QTabWidget>
@@ -7,17 +7,25 @@
 #include <QDrag>
 #include <QScreen>
 #include <QApplication>
+#include <QHBoxLayout>
+#include <QTimer>
 #include "dragabletabbar.h"
 
 #define DRAGABLE_TAB_WINDOW_MIME_KEY "DRAGABLE_TAB_WINDOW_MIME_KEY"
 #define DRAGABLE_TAB_WIDGET_MIME_KEY "DRAGABLE_TAB_WIGET_MIME_KEY"
 #define DRAGABLE_TAB_LABEL_MIME_KEY "DRAGABLE_TAB_LABEL_MIME_KEY"
 
-class DragableTabWindow : public QTabWidget
+class DragableTabGroup : public QTabWidget
 {
     Q_OBJECT
 public:
-    DragableTabWindow(QWidget* parent = nullptr);
+    DragableTabGroup(QWidget* parent = nullptr);
+
+    void split(QBoxLayout::Direction direction, bool copy = true);
+
+    bool isFocusing();
+    bool hasTab(QWidget* widget);
+    void deleteIfEmpty();
 
 protected:
     void dragEnterEvent(QDragEnterEvent *event);
@@ -26,11 +34,13 @@ protected:
 
 public slots:
     void slotStartDrag(int index);
-    void slotDragToNewWindow();
-    bool slotMergeLabel(QDropEvent* event);
+    DragableTabGroup *createDraggedNewWindow();
+    bool mergeDroppedLabel(QDropEvent* event);
 
 signals:
-    void signalTabWindowCreated(DragableTabWindow* window);
+    void signalNewTabWindowCreated(DragableTabGroup* window);
+    void signalWidgetFocused(QWidget* widget);
+    void signalSplitCurrentTab(QBoxLayout::Direction direction, bool copy);
 
 protected:
     DragableTabBar* tab_bar;
@@ -42,4 +52,4 @@ protected:
     static bool _drag_merged;
 };
 
-#endif // DRAGABLETABWINDOW_H
+#endif // DRAGABLETABGROUP_H
